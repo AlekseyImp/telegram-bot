@@ -1,0 +1,17 @@
+{
+    "name": "aleksey/telegram-bot",
+    "description": "Test trash telegram bot",
+    "autoload": {
+        "files": [
+            "src/Functions.php",
+            "src/Logic.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Aleksey Petras",
+            "email": "leha.petras1998@gmail.com"
+        }
+    ],
+    "require": {}
+}
