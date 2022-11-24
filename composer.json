@@ -4,7 +4,11 @@
     "autoload": {
         "files": [
             "src/Functions.php",
-            "src/Logic.php"
+            "src/Logic.php",
+            "src/Webhook.php",
+            "src/Logger.php",
+            "src/Config.php",
+            "src/Curl.php"
         ]
     },
     "authors": [
@@ -13,5 +17,8 @@
             "email": "leha.petras1998@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "ext-curl": "*",
+      "ext-mbstring": "*"
+    }
 }

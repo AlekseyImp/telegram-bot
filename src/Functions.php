@@ -2,6 +2,13 @@
 
 namespace TelegramBot\Functions;
 
+use TelegramBot\Config;
+
+use function TelegramBot\Curl\curlSend;
+
+use const TelegramBot\Config\HUMAN_TYPE;
+use const TelegramBot\Config\PROFESSIONS;
+
 function writeLogFile($rowData, $clear = false)
 {
     if ($rowData === '') {
@@ -19,71 +26,66 @@ function writeLogFile($rowData, $clear = false)
     }
 }
 
-function sendStiker($phrase)
+function sendSticker(string $message, int $chatId): void
 {
-    $testLogFile = __DIR__."/test.txt";
-    file_put_contents($testLogFile, $phrase . "\n");
-    $token = "5933872833:AAEqYlP5tVy-3A90cACp1HeI_dR1EJiEdNg";
-    $chatID = '-1001648866574';
-    if ($phrase === "ALAH AKBAR") {
-        $sticketID = 'CAACAgIAAx0CYke1DgACAQJjfV843CoDoPGUxoW8OPSlzLFuqAACrBoAAv8diEmNcZeG5UalASsE';
-        $getQuery = array(
-            "chat_id" => $chatID,
-            "sticker" => $sticketID
-        );
-        $ch = curl_init("https://api.telegram.org/bot". $token ."/sendSticker?" . http_build_query($getQuery));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_HEADER, false);
-curl_exec($ch);
-curl_close($ch);
-    } elseif ($phrase === "KILL") {
-        $sticketID = 'CAACAgIAAx0CYke1DgACARpjfWa1hH9rTBq6U1I634zHlLUFXwACvBcAAqlfEEqm3SNfRN-b8isE';
-        $getQuery = array(
-            "chat_id" => $chatID,
-            "sticker" => $sticketID
-        );
-        $ch = curl_init("https://api.telegram.org/bot". $token ."/sendSticker?" . http_build_query($getQuery));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_HEADER, false);
-curl_exec($ch);
-curl_close($ch);
-    } elseif ($phrase === "LOVE") {
-        $sticketID = 'CAACAgIAAx0CYke1DgACAR5jfWcfRvzTqf-X82YB2BXyIkP5HgACYwADmL-ADdeVwkmDmmqDKwQ';
-        $getQuery = array(
-            "chat_id" => $chatID,
-            "sticker" => $sticketID
-        );
-        $ch = curl_init("https://api.telegram.org/bot". $token ."/sendSticker?" . http_build_query($getQuery));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_HEADER, false);
-curl_exec($ch);
-curl_close($ch);
-    } elseif ($phrase === "GACHI") {
-        $sticketID = 'CAACAgIAAx0CYke1DgACASFjfWeWUt92kFxiPL2ZKQ47FWsqHgAC1xgAAk4lyEtT60CX4JzZaCsE';
-        $getQuery = array(
-            "chat_id" => $chatID,
-            "sticker" => $sticketID
-        );
-        $ch = curl_init("https://api.telegram.org/bot". $token ."/sendSticker?" . http_build_query($getQuery));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_HEADER, false);
-curl_exec($ch);
-curl_close($ch);
-    } elseif ($phrase === "WIGLE") {
-        $sticketID = 'CAACAgQAAx0CYke1DgACASZjfWgmdaRw4ONYPEQSa4MR3u4UOwACOhgAAqbxcR6cYA5lHoA_dCsE';
-        $getQuery = array(
-            "chat_id" => $chatID,
-            "sticker" => $sticketID
-        );
-        $ch = curl_init("https://api.telegram.org/bot". $token ."/sendSticker?" . http_build_query($getQuery));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_HEADER, false);
-curl_exec($ch);
-curl_close($ch);
+//    $testLogFile = __DIR__."/test.txt";
+//    file_put_contents($testLogFile, $phrase . "\n");
+    $query = [
+        "chat_id" => $chatId,
+        "sticker" => Config\STICKERS_ID[$message],
+    ];
+    curlSend($query, 'sendSticker');
+}
+
+function isPhrase(string $message): bool
+{
+    return array_key_exists($message, Config\STICKERS_ID);
+}
+
+function sendProfession(int $chatId, array $user)
+{
+    $text = 'Непонятное что-то! Мне кажется ты ';
+    $text .= getProfession($user);
+    $query = [
+        "chat_id" => $chatId,
+        "text" => $text
+    ];
+    curlSend($query, 'sendMessage');
+}
+
+function getProfession($user): string
+{
+    $firstLetterOfFirstName = mb_strtolower(mb_substr($user['first_name'], 0, 1));
+    $firstLetterOfLastName = mb_strtolower(mb_substr($user['last_name'], 0, 1));
+    if ($firstLetterOfLastName == null) {
+        $result = PROFESSIONS[$firstLetterOfFirstName];
+    } else {
+        $result = HUMAN_TYPE[$firstLetterOfFirstName] . ' ' . PROFESSIONS[$firstLetterOfLastName] . '!';
     }
+    return $result;
+}
+
+function sendWrong($chatId)
+{
+    $text = "Жду текст!";
+    $query = [
+        "chat_id" => $chatId,
+        "text" => $text
+    ];
+    curlSend($query, 'sendMessage');
+}
+
+function isCommand($message): bool
+{
+    return in_array($message, array_keys(Config\COMMANDS));
+}
+
+function sendCommand($message, $chatId)
+{
+    $text = Config\COMMANDS[$message];
+    $query = [
+        "chat_id" => $chatId,
+        "text" => $text
+    ];
+    curlSend($query, 'sendMessage');
 }
