@@ -3,7 +3,9 @@
 namespace TelegramBot\Functions;
 
 use TelegramBot\Config;
+
 use function TelegramBot\Curl\curlSend;
+
 use const TelegramBot\Config\HUMAN_TYPE;
 use const TelegramBot\Config\PROFESSIONS;
 
