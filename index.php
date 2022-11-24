@@ -8,12 +8,13 @@ if (file_exists($autoloadPath1)) {
     require_once $autoloadPath2;
 }
 
-const TOKEN = "5933872833:AAEqYlP5tVy-3A90cACp1HeI_dR1EJiEdNg";
-const GROUP_ID = -1001648866574;
+use TelegramBot\Webhook;
 
+use function TelegramBot\Logic\logic;
 use function TelegramBot\Functions\writeLogFile;
-use function TelegramBot\Logic\triggerOnPhrase;
 
-$rowData = file_get_contents("php://input");
-writeLogFile($rowData);
-triggerOnPhrase($rowData);
+$tgAnswer = Webhook\jsonToArray();
+if (is_null($tgAnswer)) {
+    throw new \Exception("Usage only with webhook. Set webhook");
+}
+logic($tgAnswer);
